@@ -14,6 +14,7 @@
           v-model:selectedKeys="current"
           mode="horizontal"
           :items="items"
+          @click="doMenuClick"
         />
       </a-col>
       <a-col flex="120px">
@@ -28,8 +29,10 @@
 import { h, ref } from 'vue'
 import { HomeOutlined } from '@ant-design/icons-vue'
 import { MenuProps } from 'ant-design-vue'
+import { useRouter } from "vue-router";
 
-const current = ref<string[]>(['home'])
+// 当前选中菜单
+const current = ref<string[]>([''])
 const items = ref<MenuProps['items']>([
   {
     key: '/',
@@ -48,6 +51,20 @@ const items = ref<MenuProps['items']>([
     title: '智能云图库',
   },
 ])
+
+// 路由跳转事件
+const doMenuClick = ({ key }: { key: string }) => {
+  router.push({
+    path: key,
+  });
+};
+const router = useRouter();
+// 监听路由变化，更新当前选中菜单
+router.afterEach((to, from, next) => {
+  current.value = [to.path];
+});
+
+
 </script>
 
 <style scoped>
