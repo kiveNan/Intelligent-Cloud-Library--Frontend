@@ -44,7 +44,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { h, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 import { HomeOutlined, LogoutOutlined } from '@ant-design/icons-vue'
 import { MenuProps, message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
@@ -53,7 +53,8 @@ import { userLogoutUsingPost } from '@/api/yonghumokuai'
 
 // 当前选中菜单
 const current = ref<string[]>([''])
-const items = ref<MenuProps['items']>([
+// 菜单列表
+const originItems = [
   {
     key: '/',
     icon: () => h(HomeOutlined),
@@ -70,19 +71,35 @@ const items = ref<MenuProps['items']>([
     label: h('a', { href: 'https://pixabay.com/zh/', target: '_blank' }, '智能云图库'),
     title: '智能云图库',
   },
-])
+]
+
+// 过滤菜单项
+const filterMenus = (menus = [] as MenuProps['items']) => {
+  return menus?.filter((menu) => {
+    if (menu.key.startsWith('/admin')) {
+      const loginUser = loginUserStore.loginUser
+      if (!loginUser || loginUser.userRole !== 'admin') {
+        return false
+      }
+    }
+    return true
+  })
+}
+
+// 展示在菜单的路由数组
+const items = computed<MenuProps['items']>(() => filterMenus(originItems))
 
 // 路由跳转事件
 const doMenuClick = ({ key }: { key: string }) => {
   router.push({
     path: key,
-  });
-};
-const router = useRouter();
+  })
+}
+const router = useRouter()
 // 监听路由变化，更新当前选中菜单
 router.afterEach((to, from, next) => {
-  current.value = [to.path];
-});
+  current.value = [to.path]
+})
 
 const loginUserStore = useLoginUserStore()
 // 用户注销
