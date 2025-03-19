@@ -67,6 +67,11 @@ const originItems = [
     title: '用户管理',
   },
   {
+    key: '/add_picture',
+    label: '创建图片',
+    title: '创建图片',
+  },
+  {
     key: 'others',
     label: h('a', { href: 'https://pixabay.com/zh/', target: '_blank' }, '智能云图库'),
     title: '智能云图库',
