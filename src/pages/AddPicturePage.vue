@@ -1,6 +1,8 @@
 <template>
   <div id="addPicturePage">
-    <h2 style="margin-bottom: 16px">创建图片</h2>
+    <h2 style="margin-bottom: 16px">
+      {{ route.query?.id ? '修改图片' : '创建图片' }}
+    </h2>
     <PictureUpload :picture="picture" :onSuccess="onSuccess" />
     <a-form layout="vertical" v-if="picture" :model="pictureForm" @finish="handleSubmit">
       <a-form-item label="名称" name="name">
@@ -42,8 +44,12 @@
 <script setup lang="ts">
 import PictureUpload from '@/components/PictureUpload.vue'
 import { onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { editPictureUsingPost, listPictureTagCategoryUsingGet } from '@/api/tupianmokuai'
+import { useRoute, useRouter } from 'vue-router'
+import {
+  editPictureUsingPost,
+  getPictureVoByIdUsingGet,
+  listPictureTagCategoryUsingGet,
+} from '@/api/tupianmokuai'
 import { message } from 'ant-design-vue'
 
 const picture = ref<API.PictureVO>()
@@ -105,7 +111,28 @@ const getTagCategoryOptions = async () => {
 
 onMounted(() => {
   getTagCategoryOptions()
+  getOldPicture()
 })
+const route = useRoute()
+
+// 获取老数据
+const getOldPicture = async () => {
+  // 获取数据
+  const id = route.query?.id
+  if (id) {
+    const res = await getPictureVoByIdUsingGet({
+      id: id,
+    })
+    if (res.data.code === 0 && res.data.data) {
+      const data = res.data.data
+      picture.value = data
+      pictureForm.name = data.name
+      pictureForm.introduction = data.introduction
+      pictureForm.category = data.category
+      pictureForm.tags = data.tags
+    }
+  }
+}
 </script>
 
 <style scoped>
